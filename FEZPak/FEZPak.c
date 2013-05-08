@@ -5,7 +5,7 @@
 #include <string.h>
 
 char *DirName;
-char DirNameBuf[256];
+char DirNameBuf[260];
 size_t DirNameLen;
 char *Name;
 size_t NameLen;
@@ -54,13 +54,15 @@ int PakCreate() {
 				break;
 			*(filenameptr++) = namebyte;
 		}
-		*filenameptr = 0;
-		if (!(*filename)) {
+		if (filenameptr == filename) {
 			if (namebyte < 0)
 				break;
 			continue;
 		}
+		*((unsigned int *)(filenameptr)) = 'zef.';
+		filenameptr[4] = 0;
 		addfile = fopen(filename, "rb");
+		*filenameptr = 0;
 		if (!addfile) goto filefail;
 		++numfiles;
 		filenameptr = filename;
@@ -88,10 +90,10 @@ int PakCreate() {
 		}
 		fclose(addfile);
 		addfile = NULL;
-		printf("OK %s\n", filename);
+		printf("OK %s.fez\n", filename);
 		continue;
 filefail:
-		printf("FAIL %s\n", filename);
+		printf("FAIL %s.fez\n", filename);
 		if (addfile) {
 			fclose(addfile);
 			addfile = NULL;
@@ -117,7 +119,7 @@ fail:
 }
 
 int PakCreatePath(char *path, size_t pathlen) {
-	char newpathbuf[512];
+	char newpathbuf[520];
 	char *newpath = newpathbuf;
 
 	while (pathlen--) {
@@ -137,7 +139,7 @@ int PakExtract() {
 	unsigned char bytes[0x40000];
 	int dirnamelen = DirNameLen + 1;
 	unsigned int filelen;
-	char filename[512];
+	char filename[520];
 	int filenamelen;
 	FILE *listfile = NULL;
 	unsigned int numfiles;
@@ -154,7 +156,7 @@ int PakExtract() {
 		goto readfail;
 	
 	memcpy(filename, DirName, DirNameLen);
-	*((int *)(filename + DirNameLen)) = 'txt.';
+	*((unsigned int *)(filename + DirNameLen)) = 'txt.';
 	filename[DirNameLen + 4] = 0;
 	listfile = fopen(filename, "w");
 
@@ -165,6 +167,8 @@ int PakExtract() {
 		if (filenamelen < 0) goto readfail;
 		if (!fread(filename + dirnamelen, filenamelen, 1, pakfile)) goto readfail;
 		filenamelen += dirnamelen;
+		*((unsigned int *)(filename + filenamelen)) = 'zef.';
+		filenamelen += 4;
 		filename[filenamelen] = 0;
 		if (!fread(&filelen, 4, 1, pakfile)) goto readfail;
 
@@ -187,9 +191,10 @@ int PakExtract() {
 		fflush(targetfile);
 		fclose(targetfile);
 		targetfile = NULL;
+		filename[filenamelen - 4] = 0;
 		if (listfile)
 			fprintf(listfile, "%s\n", filename + dirnamelen);
-		printf("OK %s\n", filename);
+		printf("OK %s.fez\n", filename);
 		continue;
 filefail:
 		printf("FAIL %s\n", filename);
@@ -231,8 +236,8 @@ int main(int argc, char **argv) {
 		unsigned int dirnamestart = NameLen - 4;
 		char *dirnameptr = Name + dirnamestart;
 
-		DirNameBuf[255] = 0;
-		DirName = DirNameBuf + 255;
+		DirNameBuf[259] = 0;
+		DirName = DirNameBuf + 259;
 		while (dirnamestart--) {
 			--dirnameptr;
 			if ((*dirnameptr == '\\') || (*dirnameptr == '/'))

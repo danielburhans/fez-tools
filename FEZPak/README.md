@@ -2,9 +2,9 @@
 A drag-and-drop application that creates and extracts .pak files used in FEZ.
 
 ## Creating a .pak
-To create a .pak, drag-and-drop a .txt file containing the list of files to pack, one file per line, onto FEZPak.exe.
+To create a .pak, drag-and-drop a .txt file containing the list of files to pack, one file per line, **without** .fez extenstion, onto FEZPak.exe.
 
-The files must be located in the current folder (if you drag and drop, it will be the folder where your .txt is located) as the .txt file.
+The files must be located in the current folder (if you drag and drop, it will be the folder where your .txt is located) as the .txt file and have .fez extension.
 
 The .pak file will be created in the current folder under the same name as the .txt file.
 
