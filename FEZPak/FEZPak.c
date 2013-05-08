@@ -52,7 +52,7 @@ int PakCreate() {
 			namebyte = fgetc(listfile);
 			if ((namebyte < 0) || (namebyte == '\n'))
 				break;
-			*filenameptr++ = namebyte;
+			*(filenameptr++) = namebyte;
 		}
 		*filenameptr = 0;
 		if (!(*filename)) {
@@ -128,7 +128,7 @@ int PakCreatePath(char *path, size_t pathlen) {
 					return 1;
 			}
 		}
-		*newpath++ = *path++;
+		*(newpath++) = *(path++);
 	}
 	return 0;
 }
